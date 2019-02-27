@@ -1,19 +1,67 @@
-#creating first block(genesis block)
-#Monica Ar
-import datetime #records the date & time during creation of the block
-import json #output is written in json
-import flask as Flask,jsonify
-import hashlib #for sha256
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 25 22:08:59 2019
 
-class Blockchain:
-  def __init__(self):
-    self.chain=[] #initially chain is empty
-    self.create_block(proof=1,prev_hash='0')
-  def create_block(self,proof,prev_hash):
-    Block={'Index':len(self.chain)+1,
-           'timestamp':datetime.datetime.now(),
-           'proof':proof
-           'prev_hash':prev_hash
-           }#dictionary
-  def get_previous_block(self):
-    return self.chain(-1)
+@author: Monica
+"""
+
+import datetime #to stode thedate of every block's creation
+import hashlib #contains sha256
+import json #encode blocks before hashing
+from flask import Flask,jsonify #to display the state of block
+
+#building a blockchain
+
+class Blockchain_:
+    def __init__(self):
+        self.chain=[];#an empty list in the beginning
+        self.create_block(proof = 1, prevHash='0') #create block function
+        
+        def create_block(self,proof,prevHash):#this is created right after mining
+            block={"Index":len(self.chain)+1,
+                   "timestamp":str(datetime.datetime.now()),
+                   "proof":proof,
+                   "prevHash":prevHash
+                   }  #dictionary any data can be added
+            self.chain.append(block)#append the newly created block
+            return block
+        def get_previous_block(self):
+            return self.chain[-1] # -1 gives last index of chain
+        
+        def proof_of_work(self,previous_proof):
+            new_proof=1 #to solve we need to increment by 1 until actual proof is found
+            check_proof=False
+            while check_proof is False:
+                #simple proof of work
+                hash_operation = hashlib.sha256(str(new_proof**2-previous_proof**2).encode().hexdigest())#not symmetrical
+                #encode is for having the format
+                #check if the hash operation gives 4 0's
+                if hash_operation[:4] =='0000':
+                    check_proof=True
+                else:
+                    new_proof+=1
+            return new_proof
+        
+         #check if blockchain is valid
+        def hash(self,block): #hashing the block
+                encoded_block = json.dumps(block,sort_keys = True).encode()
+                return hashlib.sha256(encoded_block).hexdigest()
+                #dumps function to make it a string
+        def is_chain_valid(self,chain):
+            previous_block = chain[0]
+            block_index=1
+            while block_index < len(chain):
+                block = chain[block_index]#current block`
+                if block['prevHash']!=self.hash(previous_block):
+                    return False#prev hash should be equal to hash of prev block
+                previous_proof = previous_block['proof]
+                proof = block['proof']
+                hash_operation = hashlib.sha256(str(proof**2-previous_proof**2).encode().hexdigest()
+                if hash_operation[:4]!='0000':
+                    return False
+                previous_block = block
+                block_index += 1
+            return True
+#mining blockchain 
+#difficult to solve but easy to verify
+            
